@@ -1,29 +1,86 @@
 require 'rubygems'
 require 'sinatra'
+require 'pry'
 
 set :sessions, true
 
+helpers do
+	def calculate_total(cards)
+		arr = cards.map{|element| element[1]}
+
+		total = 0
+		arr.each do |a|
+			if a == 'A'
+				total += 11
+			else
+				total += a.to_i == 0 ? 10 : a.to_i
+			end
+		end
+		# correct for aces
+		arr.select{|element| element == "A"}.count.times do
+			break if total <= 21
+			total -= 10
+		end
+		total
+	end
+
+end # helpers block
+before do
+	@show_hit_or_stay_buttons = true
+end
 
 get '/' do
-	"Hey there, diddy"
-end
-
-get '/template' do
-	erb :mytemplate
-end
-
-get '/nested_template' do
-	erb :"/users/profile"
-end
-
-get '/nothere' do
-	redirect '/'
-end
-
-get '/form' do
-	erb :form
-end
-
-post '/myaction' do
-puts params['username']
+	if session[:username].nil?
+		redirect '/new_player'
+	else
+ 		redirect '/game'
+		# session.clear
 	end
+end
+
+get '/new_player' do
+	erb :new_player
+end
+
+post '/new_player' do
+	if !params[:username].empty?
+		session[:username] = params['username']
+		redirect '/game'
+	else
+		@error = "Must input name"
+		erb :new_player
+	end
+end
+
+get '/game' do
+	# init deck
+	suits = ['H', 'D', 'C', 'S']
+	values = ['2', '3', '4', '5', '6', '7', '8', '9','10', 'J', 'Q', 'K', 'A']
+	session[:deck] = suits.product(values).shuffle!
+	# deal cards
+	session[:dealer_cards] = []
+	session[:player_cards] = []
+	session[:dealer_cards] << session[:deck].pop
+	session[:player_cards] << session[:deck].pop
+	session[:dealer_cards] << session[:deck].pop
+	session[:player_cards] << session[:deck].pop
+
+		# deal player
+		# deal dealer
+	erb :game
+end
+
+post '/game/player/hit' do
+	session[:player_cards] << session[:deck].pop
+	if calculate_total(session[:player_cards]) > 21
+		@error = "Sorry, it looks like you busted with: #{calculate_total(session[:player_cards])}"
+		@show_hit_or_stay_buttons = false
+	end
+	erb :game 
+end
+
+post '/game/player/stay' do
+	@success = "Congrats, you have chosen to stay"
+	@show_hit_or_stay_buttons = false
+	erb :game
+end
