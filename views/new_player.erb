@@ -1,6 +1,31 @@
 <h3> New Player Form </h3>
+<h5>Enter your Name and place your initial bet, you have $100</h5>
+<!-- <div class='well'>
+	<form action='/new_player'method="POST">
+		<input type 'text' name="username" placeholder="Name"/>
+		<input type="submit" class="btn"/>
+	</form>
+</div> -->
 
-<form action='/new_player'method="POST">
-	<input type 'text' name="username"/>
-	<input type="submit" class="btn"/>
+
+<form class="form-horizontal well" action='/new_player' method="POST">
+  <div class="control-group">
+    <label class="control-label" for="inputName">Name</label>
+    <div class="controls">
+      <input type="text" id="inputName" placeholder="Name" name="username">
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="inputWager">Initial Wager</label>
+    <div class="controls">
+    	<span class="add-on">$</span>
+      <input type="text" id="inputWager prependedInput" name="wager" placeholder="Wager">
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+
+      <input type="submit" class="btn" name="Play On"/>
+    </div>
+  </div>
 </form>

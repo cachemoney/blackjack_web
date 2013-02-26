@@ -1,10 +1,25 @@
 <h2>Welcome to Black Jack!</h2>
-<p><%= "Welcome #{session[:username]}" %></p>
+
+	<p><%= "Welcome #{session[:username]} Your Initial wager is: $#{session[:wager]}" %></p>
+
+
 <% if @play_again %>
 	<p>
 		<h5>Play again?</h5>
-		<a href="/game" class="btn btn-primary">Yes</a>
-		<a href="/thankyou" class="btn"> No</a>
+		<form class="form-inline" action='/process_wager' method="POST">
+		  <div class="control-group">
+		    <label class="control-label" for="inputWager">Input Your Wager</label>
+		    <div class="controls">
+		    	<span class="add-on">$</span>
+		      <input class="input-small" type="text" id="inputWager prependedInput" name="wager" placeholder="Wager">
+		     <button type="submit" class="btn btn-primary" name="Play On"/> Play On</button> <a href="/thankyou" class="btn"> No</a>		      
+		    </div>
+
+		  </div>
+		 </form>
+		<!-- <a href="/game" class="btn btn-primary">Yes</a> -->
+
+		
 	</p>
 <% end %>
 

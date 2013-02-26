@@ -12,6 +12,9 @@
         <div class="container">
             <ul class="nav">
               <li><a href="/new_player">New Game</a></li>
+              <%if session[:turn] %>
+                <li><%= "#{session[:username]}'s Bank: " %><span class="label label-info bank_roll"><%="$#{session[:bank]}"%></span></li>
+              <% end %>
             </ul>
         </div>
       </div>

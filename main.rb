@@ -5,6 +5,8 @@ require 'pry'
 set :sessions, true
 BLACKJACK_AMT = 21
 DEALER_MIN_HIT = 17
+INITIAL_POT = 100
+BJ_MULT = 1.5
 
 helpers do
 	def calculate_total(cards)
@@ -50,18 +52,28 @@ helpers do
 		@play_again = true
 		@show_hit_or_stay_buttons = false
 		@success = "<strong>#{session[:username]} wins!</strong> #{msg}"
+		session[:bank] += 2 * session[:wager].to_i
 	end
 
 	def loser!(msg)
 		@play_again = true
 		@show_hit_or_stay_buttons = false
 		@error = "<strong>#{session[:username]} loses!</strong> #{msg}"
+		# session[:bank] -= session[:wager].to_i
 	end
 
 	def tie!(msg)
 		@play_again = true
 		@show_hit_or_stay_buttons = false
 		@success = "<strong>Its a tie!</strong> #{msg}"
+		session[:bank] += session[:wager].to_i
+	end
+
+	def blackjack!(msg)
+		@play_again = true
+		@show_hit_or_stay_buttons = false
+		session[:bank] += (1.5 * session[:wager].to_i).round
+		@success = "<strong>#{session[:username]} wins !</strong> #{msg}"
 	end
 
 end # helpers block
@@ -80,12 +92,15 @@ get '/' do
 end
 
 get '/new_player' do
+	session.clear
 	erb :new_player
 end
 
 post '/new_player' do
 	if !params[:username].empty?
 		session[:username] = params['username']
+		session[:wager] = params['wager']
+		session[:bank] = INITIAL_POT - session[:wager].to_i
 		redirect '/game'
 	else
 		@error = "Must input name"
@@ -107,6 +122,10 @@ get '/game' do
 	session[:dealer_cards] << session[:deck].pop
 	session[:player_cards] << session[:deck].pop
 
+	player_total = calculate_total(session[:player_cards])
+	if player_total == BLACKJACK_AMT
+		blackjack!("#{session[:username]} hit blackjack.")
+	end
 		# deal player
 		# deal dealer
 	erb :game
@@ -166,9 +185,17 @@ get '/game/compare' do
 	end
 	erb :game
 end
+
 get '/thankyou' do
 	erb :thankyou
-	end
+end
+
+post '/process_wager' do
+	session[:wager] = params['wager']
+	session[:bank] -= session[:wager].to_i
+	redirect '/game'
+end	
+
 
 
 
